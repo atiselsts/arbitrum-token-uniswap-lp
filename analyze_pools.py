@@ -10,7 +10,7 @@ ETH_PRICE = 1800
 
 Tick = namedtuple("Tick", "liquidityGross liquidityNet feeGrowthOutside0X128 feeGrowthOutside1X128 tickCumulativeOutside secondsPerLiquidityOutsideX128 secondsOutside initialized")
 
-ARBITRUM_URL = os.getenv("INFURA_URL_ARBITRUM")
+ARBITRUM_URL = os.getenv("PROVIDER_URL_ARBITRUM")
 
 web3 = Web3(Web3.HTTPProvider(ARBITRUM_URL))
 
@@ -30,12 +30,8 @@ def calculate_y(L, sp, sa, sb):
     sp = max(min(sp, sb), sa)     # if the price is outside the range, use the range endpoints instead
     return L * (sp - sa)
 
-#TICK_BASE = 
 def tick_to_price(tick):
     return 1.0001 ** tick
-
-#def price_to_tick(price):
-#    return int(log(price, TICK_BASE))
 
 def eth_price(raw_price):
     return 1 / (raw_price / ETH_PRICE)
@@ -49,7 +45,7 @@ def print_pool(pool_address, first_tick, last_tick, token_symbol, token_decimals
     slot0 = pool_contract.functions.slot0().call()
     s_price = slot0[0] / (1 << 96)
     tick = slot0[1]
-    print("current tick=", tick, "price=", adjust_price(s_price ** 2), "USDC/ARB")
+    print(f"current tick={tick} price={adjust_price(s_price ** 2):.2f} USDC/ARB")
 
     total_buy_amount = 0
     liquidity = 0
@@ -81,7 +77,7 @@ def print_pool(pool_address, first_tick, last_tick, token_symbol, token_decimals
             adjusted_buy = buy_amount / 1e18
             adjusted_price = adjust_price(mean_price)
             print(f"tick={tick} price={adjusted_price:.2f} USD/ARB, sell {adjusted_sell:.1f} {token_symbol} to buy {adjusted_buy:.0f} ARB")
-    print(f"in total, pool is buying {total_buy_amount/1e18:.0f} ARB")
+    print(f"in total, the pool is buying {total_buy_amount/1e18:.0f} ARB")
 
 if __name__ == "__main__":
     print("==========================================")
